@@ -1,7 +1,7 @@
 {
-  "name": "chrome-extension-boilerplate-react",
-  "version": "5.0.4",
-  "description": "A chrome extension boilerplate built with React 18, Webpack 5, and Webpack Dev Server 4",
+  "name": "click-counter-chrome-extension",
+  "version": "2.0.0",
+  "description": "A click counter chrome extension to track number of clicks on different websites",
   "license": "MIT",
   "repository": {
     "type": "git",

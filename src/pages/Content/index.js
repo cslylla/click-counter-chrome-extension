@@ -1,6 +1,14 @@
-import { printLine } from './modules/print';
+/**
+ * Content script - Listens for clicks on web pages and reports them to the background script.
+ * Runs on all http/https pages via manifest content_scripts.
+ */
 
-console.log('Content script works!');
-console.log('Must reload extension for modifications to take effect.');
-
-printLine("Using the 'printLine' function from the Print Module");
+document.addEventListener('click', () => {
+  try {
+    const hostname = window.location.hostname || 'unknown';
+    chrome.runtime.sendMessage({ type: 'CLICK_RECORDED', hostname });
+  } catch (e) {
+    // Extension context may be invalidated (e.g., after update)
+    console.debug('Click Counter: Could not send click', e);
+  }
+});
