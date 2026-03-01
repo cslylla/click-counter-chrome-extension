@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Click Counter",
-  "description": "A click counter chrome extension to track number of clicks on different websites",
+  "description": "Track clicks, typing, and file uploads across websites with time-range filtering",
   "permissions": ["storage"],
   "background": { "service_worker": "background.bundle.js" },
   "action": {

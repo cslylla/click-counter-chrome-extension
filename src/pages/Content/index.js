@@ -1,14 +1,37 @@
 /**
- * Content script - Listens for clicks on web pages and reports them to the background script.
- * Runs on all http/https pages via manifest content_scripts.
+ * Content script - Tracks clicks, typing, and file uploads on web pages.
  */
 
-document.addEventListener('click', () => {
+const hostname = () => window.location.hostname || 'unknown';
+
+function sendActivity(activityType) {
   try {
-    const hostname = window.location.hostname || 'unknown';
-    chrome.runtime.sendMessage({ type: 'CLICK_RECORDED', hostname });
+    chrome.runtime.sendMessage({ type: 'ACTIVITY_RECORDED', hostname: hostname(), activityType });
   } catch (e) {
-    // Extension context may be invalidated (e.g., after update)
-    console.debug('Click Counter: Could not send click', e);
+    console.debug('Activity Tracker: Could not send', e);
   }
-});
+}
+
+// Clicks
+document.addEventListener('click', () => sendActivity('click'), true);
+
+// Typing - throttle to 1 per 2 seconds per hostname to avoid storage explosion
+const keypressThrottle = {};
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const target = e.target;
+  if (!target || !/^(INPUT|TEXTAREA|SELECT)$/i.test(target.tagName)) return;
+  const key = hostname();
+  const now = Date.now();
+  if (keypressThrottle[key] && now - keypressThrottle[key] < 2000) return;
+  keypressThrottle[key] = now;
+  sendActivity('keypress');
+}, true);
+
+// File uploads
+document.addEventListener('change', (e) => {
+  const target = e.target;
+  if (target?.tagName === 'INPUT' && target.type === 'file' && target.files?.length > 0) {
+    sendActivity('upload');
+  }
+}, true);
